@@ -1,0 +1,5 @@
+_nuxt/FOMBvoNV.js :: null?void 0:f.redirect_url),d(),o)if(!r)window.open(o,"_blank");else{t.setUrl(o),t.setShow(
+_nuxt/AM3L5mLH.js :: e:u}=d(),t=a(!1),o=a(""),s=a(""),l=()=>{window.open(o.value,"_blank"),r(!1),s.value&&n.push
+_nuxt/BEx8NAQE.js :: ;o.value=!1,(a=s.value)==null||a.hide(),window.open(`/webapi/gameApi/playGame/${e.gameId}?d
+_nuxt/BEx8NAQE.js :: 1){r.push(e.redirectOnFailureTo);return}window.open(`/webapi/gameApi/tryGame/${e.gameId}?de
+_nuxt/BkMUpRga.js :: =null?void 0:a.toggle()}});const P=()=>{window.open(Q.value,"_blank ")},U=()=>{const a=docu

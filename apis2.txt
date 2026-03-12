@@ -1,0 +1,129 @@
+Total js files: 288
+
+--- _nuxt/Vg4HUcHu.js ---
+}=S("getAccountVirtualAddresses",()=>o("/api/webapi/accountVirtualAddress",{method:"GET"}));
+
+--- _nuxt/HvLBzB9R.js ---
+ile:a}=At(),n=Ft("getPlacements",()=>t("/api/webapi/placement",{method:"GET"})),r=v(()=>{con
+
+--- _nuxt/CbwvGqBs.js ---
+{$api:C}=H(),m=I("announcements",()=>C("/api/webapi/announcement",{method:"GET"})),f=_(()=>{
+
+--- _nuxt/BRyyKpVg.js ---
+=h(()=>f.get("CAPTCHA_LOGIN")),J=h(()=>`/api/webapi/loginCaptcha?${t.value}`),M=R(!1),K=h(()
+
+--- _nuxt/D4MNYZm8.js ---
++" 23:59:59",u.eGameLoading=!0,await m(`/api/webapi/accountRouletteRecord/${p.value}`,{param
+
+--- _nuxt/bioXwrd4.js ---
+}=S("getAccountConvenienceStore",()=>r("/api/webapi/accountConvenienceStore",{method:"GET"})
+
+--- _nuxt/09U0MIaN.js ---
+.value=t},o=p("getRouletteEvent",()=>a(`/api/webapi/rouletteEvent/${e.params.path}`,{method:
+l),c=p("getAccountRouletteEvent",()=>a(`/api/webapi/accountRouletteEvent/${e.params.path}`,{
+:l,setPath:i,rouletteAction:async()=>a(`/api/webapi/accountRouletteEvent/${e.params.path}`,{
+
+--- _nuxt/CFb7x5Ah.js ---
+fresh:i}=g("getAccountBankCards",()=>u("/api/webapi/accountBankCard",{method:"GET"}));h(d,a=
+
+--- _nuxt/CxyDley_.js ---
+tion",()=>{const{$api:n}=u(),a=c(()=>n("/api/webapi/promotions",{method:"GET"}),"$KBMQ7lu3vG
+
+--- _nuxt/E9OlcnUY.js ---
+ading=!1}}},M=O(Math.random()),J=f(()=>`/api/webapi/signCaptcha?${M.value}`);function w(){M.
+
+--- _nuxt/CasmjvmG.js ---
+eModal:$}=H,c=b(Math.random()),k=D(()=>`/api/webapi/forgetCaptcha?${c.value}`),l=b(),P=G(),d
+
+--- _nuxt/CdJ_s8N7.js ---
+aders},e(s,i));return{getAreaCode:s=>o("/api/webapi/areaCode",s),getLanguage:s=>o("/api/weba
+pi/language",s),getWebSetting:s=>o("/api/webapi/webSetting",s),getAnnouncement:s=>o("/ap
+pi/announcement",s),getPromotions:s=>o("/api/webapi/promotions",s),getPromotionDetail:s=>i=>
+o(`/api/webapi/promotion/${i}`,s),getPromotionPreview:s
+=>i=>o(`/api/webapi/promotionPreview/${i}`,s),getSlides:s=>o
+("/api/webapi/slideshow",s),getPlacement:s=>o("/api/we
+ement",s),sendAccountSignUp:Ue(s=>i=>o("/api/webapi/send/accountSignUp",{body:i,...s})),forg
+otPassword:Ue(s=>i=>o("/api/webapi/send/forgetPassword",{body:i,...s})),for
+gotSafePassword:Ue(s=>i=>o("/api/webapi/send/forgetSafePassword",{body:i,...s}))
+tLogin:Ue(s=>async i=>{const a=await o("/api/webapi/auth/login",{body:i,...s}),l=a.data.acce
+u,c),f.value=l,a}),postRefresh:Ue(s=>o("/api/webapi/auth/refresh",s)),deleteLogout:s=>o("/ap
+ETE",body:{},...s}),getMemberInfo:s=>o("/api/webapi/auth/info",s),getAccountSign:s=>o("/api/
+SignUp:Ue(s=>async i=>{const a=await o("/api/webapi/account",{body:i,...s}),l=a.data.access_
+.value=l,a}),changePassword:Ue(s=>i=>o("/api/webapi/auth/password",{body:i,...s})),changeSaf
+ePassword:Ue(s=>i=>o("/api/webapi/auth/safePassword",{body:i,...s})),inser
+tSafePassword:Ue(s=>i=>o("/api/webapi/auth/newSafePassword",{body:i,...s})),ge
+tAccountCards:s=>o("/api/webapi/accountCard",s),getAccountCard:s=>i=>o(`
+/api/webapi/accountCard/${i}`,s),insertAccountCard:U
+e(s=>o("/api/webapi/accountCard",s)),updateAccountCard:Ue(s=
+>i=>o(`/api/webapi/accountCard/${i}`,s)),getBank:s=>o("/api
+ebapi/bank",s),getMemberBankCards:s=>o("/api/webapi/accountBankCard",s),getMemberBankCard:s=
+>i=>o(`/api/webapi/accountBankCard/${i}`,s),insertBankCard:
+Ue(s=>o("/api/webapi/accountBankCard",s)),updateBankCard:Ue(s
+=>i=>o(`/api/webapi/accountBankCard/${i}`,s)),getQualificati
+ons:s=>o("/api/webapi/accountLevel/qualifications",s),getVirtu
+alChannel:s=>o("/api/webapi/virtualChannel",s),getMemberVirtualAddre
+sses:s=>o("/api/webapi/accountVirtualAddress",s),getMemberVirtu
+alAddress:s=>i=>o(`/api/webapi/accountVirtualAddress/${i}`,s),insertVir
+tualAddress:Ue(s=>o("/api/webapi/accountVirtualAddress",s)),updateVirtual
+Address:Ue(s=>i=>o(`/api/webapi/accountVirtualAddress/${i}`,s)),getRegio
+n:s=>o("/api/webapi/region",s),getConvenienceStore:s=>o("/ap
+venienceStore",s),getMemberStores:s=>o("/api/webapi/accountConvenienceStore",s),getMemberSto
+re:s=>i=>o(`/api/webapi/accountConvenienceStore/${i}`,s),insertS
+tore:Ue(s=>o("/api/webapi/accountConvenienceStore",s)),getAccountD
+epositChannel:s=>o("/api/webapi/accountDepositChannel",s),postDeposit:Ue
+(s=>o("/api/webapi/transaction/deposit",s)),getDepositDetai
+l:s=>i=>o(`/api/webapi/transaction/depositDetail/${i}`,s),delet
+eDepositCancel:s=>i=>o(`/api/webapi/transaction/depositCancel/${i}`,{method:
+},...s}),postDepositReceipt:Ue(s=>i=>o(`/api/webapi/transaction/depositReceipt/${i}`,s)),get
+WithdrawSetting:s=>o("/api/webapi/transaction/withdrawSetting",s),postWith
+draw:Ue(s=>o("/api/webapi/transaction/withdraw",s)),getAuditRecord
+:s=>o("/api/webapi/transaction/auditRecord",s),getGameMaint
+enance:s=>o("/api/webapi/gameMaintenance",s),getGameCategorySEO:s
+=>o("/api/webapi/gameCategory/seo",s),getGameCategories:s
+=>o("/api/webapi/gameCategory",s),getGameProducts:s=>o("/
+pi/gameProduct",s),getGameTags:s=>i=>o(`/api/webapi/gameTag/${i}`,s),getGameList:s=>o("/api/
+webapi/game",s),getGameWallets:s=>o("/api/webapi/gameWallet",s),getWalletInfo:s=>(i=1)=>o
+(`/api/webapi/gameApi/wallet/${i}`,s),setTransferMode:
+Ue(s=>o("/api/webapi/gameApi/transferMode",s)),postTransfer:U
+e(s=>o("/api/webapi/gameApi/transfer",s)),postTransferAll:Ue
+(s=>o("/api/webapi/gameApi/transferAll",s)),getDiscountList
+:s=>o("/api/webapi/discount",s),postDiscount:Ue(s=>i=>o("/a
+body:i,...s})),getSiteMessageList:s=>o("/api/webapi/siteMessage",s),readSiteMessage:s=>i=>o(
+`/api/webapi/siteMessage/read/${i}`,s),deleteSiteMess
+age:Ue(s=>i=>o(`/api/webapi/siteMessage/${i}`,s)),getUnreadSiteMessa
+geCount:s=>o("/api/webapi/siteMessage/unread",s),getGameRecordList
+:s=>o("/api/webapi/gameRecord",s),getDepositRecordList:s=>o
+("/api/webapi/depositRecord",s),getWithdrawRecordList:
+s=>o("/api/webapi/withdrawRecord",s),getDiscountRecordList
+:s=>o("/api/webapi/discountRecord",s),getTransferRecordList
+:s=>o("/api/webapi/gameTransferRecord",s),getDistributionPr
+omotion:s=>o("/api/webapi/distribution/promotion",s),getDistributi
+onBelong:s=>o("/api/webapi/distribution/belong",s),getDistributionR
+ecord:s=>o("/api/webapi/distribution/record",s),getWebSite:s=>o(
+"/api/webapi/webSite",s)}}function $s(){const e=RS("a
+
+--- _nuxt/JV2voEvr.js ---
+c()=>{o.value=!0;const{data:c}=await n("/api/webapi/accountLevel",{method:"GET"});a.value=(c
+c()=>{c.value=!0;const{data:r}=await o("/api/webapi/accountLevel/qualifications",{method:"GE
+
+--- _nuxt/DWZDwqkO.js ---
+a=>{t.value=a},e=i("getGameTags",()=>n(`/api/webapi/gameTag/${t.value}`,{method:"GET"})),c=o
+
+--- _nuxt/C9dlq9g8.js ---
+game",()=>{const{$api:s}=c(),e=d(()=>s("/api/webapi/gameCategory",{method:"GET"}),"$JUeYb95y
+dZ"),o=d(()=>s("/api/webapi/gameProduct",{method:"GET"}),"$kMaZZvUKB
+
+--- _nuxt/CxC3Sx7H.js ---
+i.value=t},n=h("getCheckInEvent",()=>e(`/api/webapi/checkInEvent/${a.params.path}`,{method:"
+ll),c=h("getAccountCheckInEvent",()=>e(`/api/webapi/accountCheckInEvent/${a.params.path}`,{m
+()=>{r.eGameLoading=!0;const t=await e(`/api/webapi/accountCheckInEvent/${a.params.path}`,{m
+
+--- _nuxt/CbrXSvpP.js ---
+iceModal:P}=Y,g=k(Math.random),q=S(()=>`/api/webapi/forgetCaptcha?${g.value}`),l=k(),I=D(),L
+
+--- _nuxt/CnYQKI7Z.js ---
+api:o}=p(),c=C("getAccountCards",()=>o("/api/webapi/accountCard",{method:"GET"})),a=n(()=>{v
+()=>c.get("DEPOSIT_SWITCH")),r=C(()=>o("/api/webapi/accountDepositChannel",{method:"GET"}),"
+
+--- _nuxt/DgpEjx3u.js ---
+nner",()=>{const{$api:d}=w(),o=k(()=>d("/api/webapi/slideshow",{method:"GET"}),"$rO6kEs9C0d"
