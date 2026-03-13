@@ -70,7 +70,7 @@ export class RoomsService {
     };
   }
 
-  async getAllRooms(page: number = 1, pageCount: number = 500) {
+  async getAllRooms(page: number = 1, pageCount: number = 20) {
     const allRooms = Object.values(this.globalTableCache);
     allRooms.sort((a, b) => (a.number || 0) - (b.number || 0));
 
