@@ -484,11 +484,6 @@ $RECYCLE.BIN/
 node_modules/
 dist/
 test/
-src/
-*.json
-!initial_payload.json
-!tsconfig.json
-!package.json
 
 # Python
 __pycache__/
