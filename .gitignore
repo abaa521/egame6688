@@ -516,3 +516,6 @@ fix*.py
 
 # Keep specific files
 !ws_capture_cdp.py
+
+# Output files
+initial_payload.json
