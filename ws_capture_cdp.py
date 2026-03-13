@@ -221,7 +221,7 @@ def run():
         got_data = False
         print('Daemon mode running... starting auto-pagination patrol.')
         
-import sys
+        import sys
         
         target_page = None
         if len(sys.argv) > 1:

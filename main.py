@@ -14,7 +14,7 @@ def login():
 
     ocr = ddddocr.DdddOcr(show_ad=False)
 
-    max_retries = 5
+    max_retries = 50
     for attempt in range(1, max_retries + 1):
         print(f"\n--- 嘗試登入 (第 {attempt}/{max_retries} 次) ---")
         random_num = random.random()

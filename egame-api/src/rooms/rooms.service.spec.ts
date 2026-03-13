@@ -1,3 +1,4 @@
+import { CrawlerService } from './crawler.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { RoomsService } from './rooms.service';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
@@ -16,7 +17,15 @@ describe('RoomsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [RoomsService],
+            providers: [
+        RoomsService,
+        {
+          provide: CrawlerService,
+          useValue: {
+            fetchTableDetailByRoomId: jest.fn(),
+          },
+        }
+      ],
     }).compile();
 
     service = module.get<RoomsService>(RoomsService);

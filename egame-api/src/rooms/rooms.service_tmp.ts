@@ -1,5 +1,4 @@
-import { CrawlerService } from './crawler.service';
-import { Injectable, Logger, NotFoundException, Inject, forwardRef } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -11,7 +10,7 @@ export class RoomsService {
 
   private readonly payloadPath = path.resolve(__dirname, "../../../initial_payload.json");
 
-  constructor(@Inject(forwardRef(() => CrawlerService)) private crawlerService: CrawlerService) {
+  constructor() {
     this.getPayloadData();
   }
 
@@ -35,8 +34,6 @@ export class RoomsService {
         const id = raw.data.roomId;
         if (id && this.globalTableCache[id]) {
             this.globalTableCache[id].detail = raw.data.detail;
-            this.globalTableCache[id]._last_detail_update = Date.now();
-            this.globalTableCache[id].lock = raw.data.lock;
         }
         if (id) {
              this.logger.log(`Updated detail for room ${id}`);
@@ -70,7 +67,7 @@ export class RoomsService {
     };
   }
 
-  async getAllRooms(page: number = 1, pageCount: number = 500) {
+  async getAllRooms(page: number = 1, pageCount: number = 20) {
     const allRooms = Object.values(this.globalTableCache);
     allRooms.sort((a, b) => (a.number || 0) - (b.number || 0));
 
@@ -95,28 +92,20 @@ export class RoomsService {
     return { success: true, meta, rooms: paginatedRooms.map((t: any) => this.calculateRates(t)) };
   }
 
-    async getRoomById(roomId: number) {
-    if (this.crawlerService) {
-        await this.crawlerService.fetchTableDetailByRoomId(roomId);
-    }
-
-    // Wait up to 3 seconds for Playwright to intercept the detail WebSocket frame
-    for(let i = 0; i < 30; i++) {
-        await new Promise(r => setTimeout(r, 100));
-        const r = this.globalTableCache[roomId] || Object.values(this.globalTableCache).find((t: any) => t.number === roomId);
-        if (r && r._last_detail_update && r._last_detail_update > (Date.now() - 5000)) {
-             break;
-        }
-    }
-
-    let room = this.globalTableCache[roomId];
+  async getRoomById(roomId: number) {
+    const room = this.globalTableCache[roomId];
     if (!room) {
-        const byNumber = Object.values(this.globalTableCache).find((t:any) => t.number === roomId);
+        const byNumber = Object.values(this.globalTableCache).find(t => t.number === roomId);
         if (byNumber) {
-            return { success: true, room: { ...this.calculateRates(byNumber), detail: byNumber.detail || {}, lock: byNumber.lock || {} } };
+            return { success: true, room: this.calculateRates(byNumber) };
         }
-        return { success: false, error: 'Room not found' };
+        throw new NotFoundException(`Room with ID ${roomId} not found`);
     }
-    return { success: true, room: { ...this.calculateRates(room), detail: room.detail || {}, lock: room.lock || {} } };
+    return { success: true, room: this.calculateRates(room) };
+  }
+
+  async refreshData() {
+    this.logger.log("Daemon running separately.");
+    return { success: true, message: "Use python ws_capture_cdp.py." };
   }
 }
