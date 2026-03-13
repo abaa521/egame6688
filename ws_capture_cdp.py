@@ -221,12 +221,22 @@ def run():
         got_data = False
         print('Daemon mode running... starting auto-pagination patrol.')
         
-        current_page_idx = 1
+import sys
+        
+        target_page = None
+        if len(sys.argv) > 1:
+            try:
+                target_page = int(sys.argv[1])
+                print(f"Targeting specific page: {target_page}")
+            except ValueError:
+                pass
+                
+        current_page_idx = target_page if target_page else 1
         dynamic_total_pages = 7 # 預設有 7 頁 (共 3500 間)
         
         while True:
-            # 每 10 秒翻下一頁
-            page.wait_for_timeout(10000)
+            # 每 1 秒翻下一頁
+            page.wait_for_timeout(1000)
             
             try:
                 # 執行 JS 向 WS 發送換頁請求
@@ -234,10 +244,11 @@ def run():
                 page.evaluate(js_cmd)
                 print(f"-> Requested Page {current_page_idx}/{dynamic_total_pages}")
                 
-                # 自動輪視所有頁面
-                current_page_idx += 1
-                if current_page_idx > dynamic_total_pages:
-                    current_page_idx = 1
+                # 自動輪視所有頁面或卡在單一頁面
+                if not target_page:
+                    current_page_idx += 1
+                    if current_page_idx > dynamic_total_pages:
+                        current_page_idx = 1
                     
             except Exception as e:
                 print(f"Error during pagination injection: {e}")
