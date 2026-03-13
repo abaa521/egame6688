@@ -28,7 +28,7 @@ pipeline {
                 script {
                     // Try to stop existing container gracefully
                     bat "docker rm -f my-nest-app || exit 0"
-                    bat "docker run -d -p %APP_PORT%:3000 --name my-nest-app -e PORT=3000 %DOCKER_IMAGE%:latest"
+                    bat "docker run -d -p %APP_PORT%:3000 --name my-nest-app --env-file .env -e PORT=3000 %DOCKER_IMAGE%:latest"
                 }
             }
         }
