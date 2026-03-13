@@ -116,6 +116,9 @@ def run():
             nonlocal current_salt, current_token, got_data, first_token, dynamic_total_pages
             opcode = event['response']['opcode']
             payload = event['response']['payloadData']
+            print(f"WS RECV OPCODE: {opcode}, payload size: {len(payload)}")
+            if len(payload) > 0 and len(payload) < 200:
+                print(f"WS RECV TEXT: {payload[:200]}")
             
             if opcode == 2:
                 raw = base64.b64decode(payload)
@@ -160,7 +163,7 @@ def run():
                         current_token = dec['token']
                         print(f"Updated Token: {current_token}")
                 except Exception as e:
-                    pass
+                      print(f"WS Decryption Error: {e}")
             else:
                 if len(payload) < 2000:
                     print(">>> TEXT RESPONSE <<<")
@@ -206,6 +209,7 @@ def run():
         
         for _ in range(30):
             page.wait_for_timeout(1000)
+            print(f"Current token: {current_token}, first token: {first_token}")
             if current_token != first_token:
                 break
 
