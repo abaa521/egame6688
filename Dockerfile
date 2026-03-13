@@ -31,7 +31,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy Python scraper script and necessary static files
-COPY ws_capture_cdp.py initial_payload.json ./
+COPY ws_capture_cdp.py main.py ./
 
 # Copy compiled NestJS app from builder stage
 WORKDIR /usr/src/app/egame-api
