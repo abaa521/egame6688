@@ -1,5 +1,5 @@
 from playwright.sync_api import sync_playwright
-from playwright_stealth import Stealth
+from playwright_stealth import stealth_sync
 import pprint
 import time
 import main
@@ -79,8 +79,8 @@ def run():
         page = context.new_page()
         
         # Apply stealth!
-        Stealth().apply_stealth_sync(page)
-        
+        stealth_sync(page)
+
         # Our stealthy WS hook
         script = """
         const NativeWebSocket = window.WebSocket;

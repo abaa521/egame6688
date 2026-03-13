@@ -2,15 +2,12 @@
 FROM node:22-alpine AS builder
 WORKDIR /usr/src/app/egame-api
 
-# Install pnpm
-RUN corepack enable pnpm
-
-COPY egame-api/package.json egame-api/pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY egame-api/package.json ./
+RUN npm install
 
 COPY egame-api/ ./
-RUN pnpm run build
-RUN pnpm install --prod --frozen-lockfile
+RUN npm run build
+RUN npm prune --omit=dev
 
 # --------- Stage 2: Final Image (Python + Nodejs) ---------
 FROM mcr.microsoft.com/playwright/python:v1.50.0-jammy
