@@ -480,3 +480,44 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+# Node & NestJS
+node_modules/
+dist/
+test/
+src/
+*.json
+!initial_payload.json
+!tsconfig.json
+!package.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Logs & Output & temp files
+*.log
+*.txt
+
+# Ignore root level nestjs duplicate things (as actual code is in egame-api/) 
+# But let's be more specific instead:
+# Keep docker stuff
+!Dockerfile
+!docker-compose.yml
+!Jenkinsfile
+!.gitignore
+!requirements.txt
+
+# Keep all Python tools? No, keep only the main ones
+test_*.py
+ws_test*.py
+find_*.py
+analyze*.py
+show_tables.py
+get_lobby*.py
+fix*.py
+
+# Keep specific files
+!ws_capture_cdp.py
