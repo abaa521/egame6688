@@ -9,8 +9,8 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   // Increase body size limit
-  app.use(json({ limit: '50mb' }));
-  app.use(urlencoded({ extended: true, limit: '50mb' }));
+  // app.use(json({ limit: '50mb' }));
+  // app.use(urlencoded({ extended: true, limit: '50mb' }));
 
   // Swagger Setup
   const config = new DocumentBuilder()
