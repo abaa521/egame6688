@@ -59,9 +59,10 @@ export class CrawlerService implements OnModuleInit {
     let gameUrl = '';
     try {
       const scriptPath = path.resolve(__dirname, '../../../get_game_url.py');
-      // Execute python and grab purely the URL from stdout
+      // 確保將當前 NestJS 的環境變數 (包含 .env 讀取到的) 傳遞給 Python
       const output = execSync('python "' + scriptPath + '"', {
         encoding: 'utf-8',
+        env: { ...process.env } // 將環境變數往下傳
       });
       gameUrl = output.trim();
     } catch (error) {

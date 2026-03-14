@@ -5,6 +5,7 @@ import random
 import time
 import sys
 import urllib3
+import os
 
 urllib3.disable_warnings()
 
@@ -18,6 +19,14 @@ def login():
         "Referer": "https://egame6688.com/zhTW/login",    
         "Origin": "https://egame6688.com"
     }
+
+    # 取得由 NestJS / Docker ENV 傳入的帳號密碼
+    account = os.environ.get("EGAME_ACCOUNT")
+    password = os.environ.get("EGAME_PASSWORD")
+
+    if not account or not password:
+        log("Error: EGAME_ACCOUNT or EGAME_PASSWORD environment variables are not set.")
+        return None, None
 
     ocr = ddddocr.DdddOcr(show_ad=False)
 
@@ -38,8 +47,8 @@ def login():
 
         login_url = "https://egame6688.com/api/webapi/auth/login"
         payload = {
-            "account": "sky0212",
-            "password": "a28272629",
+            "account": account,
+            "password": password,
             "captcha": captcha_text
         }
 
