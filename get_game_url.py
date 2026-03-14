@@ -20,12 +20,12 @@ def login():
         "Origin": "https://egame6688.com"
     }
 
-    # 取得由 NestJS / Docker ENV 傳入的帳號密碼
-    account = os.environ.get("EGAME_ACCOUNT")
-    password = os.environ.get("EGAME_PASSWORD")
+    # 取得由 NestJS / Docker ENV 傳入的帳號密碼，若未設定則自動降級使用預設值
+    account = os.environ.get("GAME_ACCOUNT")
+    password = os.environ.get("GAME_PASSWORD")
 
     if not account or not password:
-        log("Error: EGAME_ACCOUNT or EGAME_PASSWORD environment variables are not set.")
+        log("Error: GAME_ACCOUNT or GAME_PASSWORD environment variables are not set.")
         return None, None
 
     ocr = ddddocr.DdddOcr(show_ad=False)
