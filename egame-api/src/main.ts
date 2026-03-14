@@ -8,6 +8,9 @@ async function bootstrap() {
   // 啟用 Shutdown hook 以確保能正確觸發 onModuleDestroy 來關閉 Python process
   app.enableShutdownHooks();
 
+  // 允許 CORS
+  app.enableCors();
+
   // Increase body size limit
   // app.use(json({ limit: '50mb' }));
   // app.use(urlencoded({ extended: true, limit: '50mb' }));

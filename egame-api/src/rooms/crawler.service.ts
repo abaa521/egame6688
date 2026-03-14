@@ -131,6 +131,12 @@ export class CrawlerService implements OnModuleInit {
     `);
 
     this.logger.log('Binding CDP Session to intercept WebSocket...');
+    this.page.on('request', (req) => {
+      const url = req.url();
+      if (url.includes('token=') || url.includes('/api/')) {
+        this.logger.debug(`[HTTP Request] ${req.method()} ${url}`);
+      }
+    });
     this.cdpSession = await this.context.newCDPSession(this.page);
     await this.cdpSession.send('Network.enable');
 
@@ -159,7 +165,7 @@ export class CrawlerService implements OnModuleInit {
             if (dec.token) {
               shouldResolveQueue = true; // ONLY resolve queue when we definitely got a new token
               this.logger.log(
-                `[Token Debug] Binary payload returned new token: ${dec.token.substring(0, 15)}... replacing ${this.currentToken.substring(0, 15)}...`,
+                `[Token Debug] Binary payload returned new token: ${dec.token} replacing ${this.currentToken}`,
               );
               this.currentToken = dec.token;
             }
@@ -194,9 +200,13 @@ export class CrawlerService implements OnModuleInit {
 
     this.cdpSession.on('Network.webSocketFrameSent', (event) => {
       const payload = event.response.payloadData;
-      if (typeof payload === 'string') {
+      const opcode = event.response.opcode;
+      
+      if (opcode === 2) {
+        this.logger.debug(`[WS SENT BINARY] base64 length: ${payload.length}`);
+      } else if (typeof payload === 'string') {
         // debug all sent events briefly to understand timeline
-        this.logger.debug(`[WS SENT] ${payload.substring(0, 80)}`);
+        this.logger.debug(`[WS SENT] ${payload.substring(0, 100)}`);
 
         const ackMatch = payload.match(/^42(\d+)\[/);
         if (ackMatch) {
@@ -213,7 +223,7 @@ export class CrawlerService implements OnModuleInit {
               const data = JSON.parse(arrStr);
               if (data && data[1] && data[1].token) {
                 this.logger.log(
-                  `[Token Debug] Client sent ${data[0]} (AckId: ${ackMatch ? ackMatch[1] : 'none'}) token: ${data[1].token.substring(0, 15)}... (current internal token: ${this.currentToken.substring(0, 15)}...)`,
+                  `[Token Debug] Client sent ${data[0]} (AckId: ${ackMatch ? ackMatch[1] : 'none'}) payloadToken: ${data[1].token} (current internal token: ${this.currentToken})`,
                 );
                 // Only initial needs to update this.currentToken from sent, others just use it
                 if (data[0] === 'initial') {
@@ -352,7 +362,7 @@ export class CrawlerService implements OnModuleInit {
       // Sometimes initial payload fallback to text format "430[{...}]"
       if (payloadObj && payloadObj.token) {
         this.logger.log(
-          `[Token Debug] Text payload returned new token: ${payloadObj.token.substring(0, 15)}... replacing ${this.currentToken.substring(0, 15)}...`,
+          `[Token Debug] Text payload returned new token: ${payloadObj.token} replacing ${this.currentToken}`,
         );
         this.currentToken = payloadObj.token;
         this.resolveWsQueue(); // unlock queue if it was waiting
