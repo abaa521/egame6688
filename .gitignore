@@ -504,18 +504,3 @@ env/
 !Jenkinsfile
 !.gitignore
 !requirements.txt
-
-# Keep all Python tools? No, keep only the main ones
-test_*.py
-ws_test*.py
-find_*.py
-analyze*.py
-show_tables.py
-get_lobby*.py
-fix*.py
-
-# Keep specific files
-!ws_capture_cdp.py
-
-# Output files
-initial_payload.json
