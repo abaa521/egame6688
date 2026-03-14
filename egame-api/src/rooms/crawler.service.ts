@@ -22,14 +22,17 @@ import * as zlib from 'zlib';
 export class CrawlerService implements OnModuleInit {
   private readonly logger = new Logger(CrawlerService.name);
   private browser!: Browser;
+  private context!: BrowserContext;
   private page!: Page;
   private cdpSession!: CDPSession;
   private currentToken: string = '';
+  private currentAckId: number = 1;
   private currentSalt: string = '';
   private dynamicTotalPages: number = 7;
   private isWsConnected: boolean = false;
   private isRebooting: boolean = false;
-  private isLoopRunning: boolean = false;
+  private isCrawlerReady: boolean = false;
+  private currentRunId: number = 0;
   private wsQueue: Array<() => Promise<void>> = [];
   private isProcessingQueue: boolean = false;
   private responseResolver: (() => void) | null = null;
@@ -46,6 +49,9 @@ export class CrawlerService implements OnModuleInit {
   }
 
   private async startCrawler() {
+    const runId = Date.now();
+    this.currentRunId = runId;
+
     this.logger.log(
       'Starting Python get_game_url.py to handle login and OCR...',
     );
@@ -81,20 +87,24 @@ export class CrawlerService implements OnModuleInit {
       this.logger.error('Failed to parse URL ' + e);
     }
 
-    this.browser = await chromium.launch({
-      headless: true, // We should run headless, wait, headless: false ?
-      args: [
-        '--disable-blink-features=AutomationControlled',
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-      ],
-    });
-    const context = await this.browser.newContext({
-      userAgent:
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-      viewport: { width: 1280, height: 720 },
-    });
-    this.page = await context.newPage();
+    if (!this.browser) {
+      this.browser = await chromium.launch({
+        headless: true, // We should run headless, wait, headless: false ?
+        args: [
+          '--disable-blink-features=AutomationControlled',
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+        ],
+      });
+    }
+    if (!this.context) {
+      this.context = await this.browser.newContext({
+        userAgent:
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+        viewport: { width: 1280, height: 720 },
+      });
+    }
+    this.page = await this.context.newPage();
 
     // Stealth bypass
     await this.page.addInitScript(`
@@ -121,7 +131,7 @@ export class CrawlerService implements OnModuleInit {
     `);
 
     this.logger.log('Binding CDP Session to intercept WebSocket...');
-    this.cdpSession = await context.newCDPSession(this.page);
+    this.cdpSession = await this.context.newCDPSession(this.page);
     await this.cdpSession.send('Network.enable');
 
     this.cdpSession.on('Network.webSocketCreated', (event) => {
@@ -184,20 +194,36 @@ export class CrawlerService implements OnModuleInit {
 
     this.cdpSession.on('Network.webSocketFrameSent', (event) => {
       const payload = event.response.payloadData;
-      if (payload.includes('"initial"')) {
-        try {
-          const arrStr = payload.substring(payload.indexOf('['));
-          const data = JSON.parse(arrStr);
-          if (data[0] === 'initial') {
-            this.logger.log(
-              `[Token Debug] Client sent init token: ${data[1].token.substring(0, 15)}... replacing ${this.currentToken.substring(0, 15)}...`,
-            );
-            this.currentToken = data[1].token;
+      if (typeof payload === 'string') {
+        // debug all sent events briefly to understand timeline
+        this.logger.debug(`[WS SENT] ${payload.substring(0, 80)}`);
+
+        const ackMatch = payload.match(/^42(\d+)\[/);
+        if (ackMatch) {
+          const sentAckId = parseInt(ackMatch[1], 10);
+          if (sentAckId >= this.currentAckId) {
+            this.currentAckId = sentAckId + 1;
           }
-        } catch (e) {
-          console.error(
-            'Parse token error on payload: ' + payload + ' | Error: ' + e,
-          );
+        }
+        
+        if (payload.includes('"token"')) {
+          try {
+            const arrStr = payload.substring(payload.indexOf('['));
+            if (arrStr) {
+              const data = JSON.parse(arrStr);
+              if (data && data[1] && data[1].token) {
+                this.logger.log(
+                  `[Token Debug] Client sent ${data[0]} (AckId: ${ackMatch ? ackMatch[1] : 'none'}) token: ${data[1].token.substring(0, 15)}... (current internal token: ${this.currentToken.substring(0, 15)}...)`,
+                );
+                // Only initial needs to update this.currentToken from sent, others just use it
+                if (data[0] === 'initial') {
+                  this.currentToken = data[1].token;
+                }
+              }
+            }
+          } catch (e) {
+            // ignore parse errors for partial matches
+          }
         }
       }
     });
@@ -208,7 +234,7 @@ export class CrawlerService implements OnModuleInit {
     let hasSentInitial = false;
     this.cdpSession.on('Network.webSocketFrameSent', (event) => {
       const payload = event.response.payloadData;
-      if (payload.includes('"initial"')) {
+      if (typeof payload === 'string' && payload.includes('"initial"')) {
         hasSentInitial = true;
       }
     });
@@ -230,10 +256,8 @@ export class CrawlerService implements OnModuleInit {
     this.logger.log(
       'Initial sequence complete! Starting background polling loop.',
     );
-    if (!this.isLoopRunning) {
-      this.isLoopRunning = true;
-      this.startBackgroundLoop();
-    }
+    this.isCrawlerReady = true;
+    this.startBackgroundLoop(runId);
   }
 
   private async restartCrawler() {
@@ -241,15 +265,21 @@ export class CrawlerService implements OnModuleInit {
     this.isRebooting = true;
     this.logger.warn('Restarting crawler due to websocket 401 Token error...');
 
+    this.currentRunId = Date.now(); // Instantly invalidate any running loops
+    this.wsQueue = [];
+    this.isProcessingQueue = false;
+    this.resolveWsQueue(); // ensure any pending resolver is released
+
     try {
-      if (this.browser) {
-        await this.browser.close();
+      if (this.page) {
+        await this.page.close();
       }
     } catch (e) {}
 
     this.currentToken = '';
-    this.isWsConnected = false;
-
+      this.currentAckId = 1;
+      this.isWsConnected = false;      
+      this.isCrawlerReady = false;
     // Small delay, then restart
     setTimeout(() => {
       this.startCrawler().finally(() => {
@@ -318,13 +348,27 @@ export class CrawlerService implements OnModuleInit {
         this.restartCrawler();
         return;
       }
+
+      // Sometimes initial payload fallback to text format "430[{...}]"
+      if (payloadObj && payloadObj.token) {
+        this.logger.log(
+          `[Token Debug] Text payload returned new token: ${payloadObj.token.substring(0, 15)}... replacing ${this.currentToken.substring(0, 15)}...`,
+        );
+        this.currentToken = payloadObj.token;
+        this.resolveWsQueue(); // unlock queue if it was waiting
+      }
     } catch (e) {}
   }
 
-  private async startBackgroundLoop() {
+  private async startBackgroundLoop(runId: number) {
     let currentPageIdx = 1;
     while (true) {
-      if (!this.currentToken || !this.page) {
+      if (this.currentRunId !== runId) {
+        this.logger.warn(`Old background loop detected. Terminating loop ${runId}`);
+        break;
+      }
+
+      if (!this.isCrawlerReady || !this.currentToken || !this.page) {
         await new Promise((r) => setTimeout(r, 5000));
         continue;
       }
@@ -345,7 +389,8 @@ export class CrawlerService implements OnModuleInit {
   private async fetchPage(pageIdx: number) {
     this.enqueueWsCommand(() => {
       this.logger.log(`Requested Background Page: ${pageIdx}/${this.dynamicTotalPages}`);
-      return `var ws = window.getGameWs(); if (ws) { ws.send('421["getSlotTables",{"page":${pageIdx},"token":"${this.currentToken}","locale":"zh-tw"}]'); } else { throw new Error("WebSocket not ready yet"); }`;
+      const ackId = this.currentAckId++;
+      return `var ws = window.getGameWs(); if (ws) { ws.send('42${ackId}["getSlotTables",{"page":${pageIdx},"token":"${this.currentToken}","locale":"zh-tw"}]'); } else { throw new Error("WebSocket not ready yet"); }`;
     });
   }
 
@@ -353,7 +398,8 @@ export class CrawlerService implements OnModuleInit {
     if (!this.page || !this.currentToken) return;
     this.logger.log('Fetch triggered via API for roomId: ' + roomId);
     this.enqueueWsCommand(() => {
-      return `var ws = window.getGameWs(); if (ws) { ws.send('423["getSlotTableDetail",{"roomId":${roomId},"token":"${this.currentToken}","locale":"zh-tw"}]'); }`;
+      const ackId = this.currentAckId++;
+      return `var ws = window.getGameWs(); if (ws) { ws.send('42${ackId}["getSlotTableDetail",{"roomId":${roomId},"token":"${this.currentToken}","locale":"zh-tw"}]'); }`;
     });
   }
 
@@ -368,8 +414,13 @@ export class CrawlerService implements OnModuleInit {
   private async processWsQueue() {
     if (this.isProcessingQueue) return;
     this.isProcessingQueue = true;
+    const initialRunId = this.currentRunId;
 
     while (this.wsQueue.length > 0) {
+      if (this.currentRunId !== initialRunId) {
+        this.logger.warn(`Old wsQueue processor detected. Terminating loop ${initialRunId}`);
+        break;
+      }
       const task = this.wsQueue.shift();
       if (task) {
         await task();
@@ -390,7 +441,9 @@ export class CrawlerService implements OnModuleInit {
   }
 
   private enqueueWsCommand(commandBuilder: () => string) {
+    const runId = this.currentRunId;
     this.wsQueue.push(async () => {
+      if (this.currentRunId !== runId) return;
       if (!this.page || !this.currentToken) return;
       const jsCmd = commandBuilder();
       try {
