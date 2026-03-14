@@ -40,12 +40,72 @@ export class AllRoomsResponseDto {
   rooms: RoomDto[];
 }
 
-export class RoomDetailResponseDto {
-  @ApiProperty({ example: true })
-  success: boolean;
+export class RoomDetailDataDetailDto {
+  @ApiProperty({ example: [5, 13, 183], description: 'Counts array' })
+  mgCounts: number[];
 
-  @ApiProperty({ type: RoomDto, description: 'The detailed room data' })
-  room: RoomDto;
+  @ApiProperty({ example: 64100855.59, description: 'Day Win' })
+  dayWin: number;
+
+  @ApiProperty({ example: 69233916.80, description: 'Day Bet' })
+  dayBet: number;
+
+  @ApiProperty({ example: 715788.35, description: 'Hour Win' })
+  hourWin: number;
+
+  @ApiProperty({ example: 833071.60, description: 'Hour Bet' })
+  hourBet: number;
+
+  @ApiProperty({ example: 154895.54, description: 'Today Win' })
+  todayWin: number;
+
+  @ApiProperty({ example: 158816, description: 'Today Bet' })
+  todayBet: number;
+}
+
+export class RoomDetailDataLockDto {
+  @ApiProperty({ example: 3600 })
+  expiredDef: number;
+
+  @ApiProperty({ example: 86400 })
+  resetDef: number;
+
+  @ApiProperty({ example: 1773423307740 })
+  time: number;
+
+  @ApiProperty({ example: 1 })
+  count: number;
+
+  @ApiProperty({ example: 1537897 })
+  roomId: number;
+}
+
+export class RoomDetailDataDto {
+  @ApiProperty({ example: 1535107, description: 'Room ID' })
+  roomId: number;
+
+  @ApiProperty({ type: RoomDetailDataDetailDto })
+  detail: RoomDetailDataDetailDto;
+
+  @ApiProperty({ type: RoomDetailDataLockDto })
+  lock: RoomDetailDataLockDto;
+}
+
+export class RoomDetailResponseDto {
+  @ApiProperty({ example: 200 })
+  status: number;
+
+  @ApiProperty({ example: 'ok' })
+  message: string;
+
+  @ApiProperty({ type: RoomDetailDataDto })
+  data: RoomDetailDataDto;
+
+  @ApiProperty({ example: '4764d8dc30444fa79c59004bcbfff3a0' })
+  token: string;
+
+  @ApiProperty({ example: 'getSlotTableDetail' })
+  eventName: string;
 }
 
 export class SuccessResponseDto {
