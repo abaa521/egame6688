@@ -387,9 +387,8 @@ export class CrawlerService implements OnModuleInit {
 
       this.fetchPage(currentPageIdx);
 
-      // We wait shorter to cycle through all 7 pages quickly!
-      // Updated to 10 seconds per user request
-      await new Promise((r) => setTimeout(r, 5000));
+      // 加快背景輪詢速度，每 1 秒抓一頁，保持前端列表即時性
+      await new Promise((r) => setTimeout(r, 1000));
 
       currentPageIdx++;
       if (currentPageIdx > this.dynamicTotalPages) {

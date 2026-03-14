@@ -91,13 +91,11 @@ export class RoomsService {
     const todayBet = t.today?.bet || 0;
     const todayWin = t.today?.win || 0;
     
-    const { detail, ...rest } = t;
+    // 從回傳物件中剔除前端不需要的敏感或詳細欄位
+    const { detail, win: _, bet: __, today, winRate, todayWinRate, ...rest } = t;
 
     return {
       ...rest,
-      winRate: bet > 0 ? Number(((win / bet) * 100).toFixed(2)) : 0,
-      todayWinRate:
-        todayBet > 0 ? Number(((todayWin / todayBet) * 100).toFixed(2)) : 0,
     };
   }
 
