@@ -29,11 +29,7 @@ pipeline {
                     // Try to stop existing container gracefully
                     bat "docker rm -f egame-api || exit 0"
                     
-                    // Since .env is ignored in git, we need to pass sensitive variables properly
-                    // Prefer using Jenkins Credentials binding instead of relying on local .env file in workspace
-                    withCredentials([usernamePassword(credentialsId: 'egame6688_creds', usernameVariable: 'GAME_ACCOUNT', passwordVariable: 'GAME_PASSWORD')]) {
-                        bat "docker run -d -p %APP_PORT%:3000 --name egame-api -e GAME_ACCOUNT=\"%GAME_ACCOUNT%\" -e GAME_PASSWORD=\"%GAME_PASSWORD%\" -e PORT=3000 %DOCKER_IMAGE%:latest"
-                    }
+                    bat "docker run -d -p %APP_PORT%:3000 --name egame-api --env-file .env -e PORT=3000 %DOCKER_IMAGE%:latest"
                 }
             }
         }
