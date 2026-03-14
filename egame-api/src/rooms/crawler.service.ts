@@ -88,8 +88,9 @@ export class CrawlerService implements OnModuleInit {
     }
 
     if (!this.browser) {
+      const isDev = process.env.NODE_ENV !== 'production';
       this.browser = await chromium.launch({
-        headless: true, // We should run headless, wait, headless: false ?
+        headless: !isDev,
         args: [
           '--disable-blink-features=AutomationControlled',
           '--no-sandbox',
