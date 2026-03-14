@@ -90,8 +90,11 @@ export class RoomsService {
     const win = t.win || 0;
     const todayBet = t.today?.bet || 0;
     const todayWin = t.today?.win || 0;
+    
+    const { detail, ...rest } = t;
+
     return {
-      ...t,
+      ...rest,
       winRate: bet > 0 ? Number(((win / bet) * 100).toFixed(2)) : 0,
       todayWinRate:
         todayBet > 0 ? Number(((todayWin / todayBet) * 100).toFixed(2)) : 0,
