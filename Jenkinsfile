@@ -29,7 +29,7 @@ pipeline {
                     // Try to stop existing container gracefully
                     bat "docker rm -f egame-api || exit 0"
                     
-                    bat "docker run -d -p %APP_PORT%:3000 --name egame-api --env-file .env -e PORT=3000 %DOCKER_IMAGE%:latest"
+                    bat "docker run -d -p %APP_PORT%:3000 --name egame-api --env-file egame-api/.env -e PORT=3000 %DOCKER_IMAGE%:latest"
                 }
             }
         }
