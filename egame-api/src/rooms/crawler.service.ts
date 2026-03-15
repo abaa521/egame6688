@@ -266,7 +266,7 @@ export class CrawlerService implements OnModuleInit {
     });
 
     // 等待更長時間適應 VPS 較慢的執行速度 (增加到 60 秒)
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 120; i++) {
       await new Promise((r) => setTimeout(r, 1000));
       if (hasSentInitial) {
         // Wait an extra moment after initial to ensure response is processed
