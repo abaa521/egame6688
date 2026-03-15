@@ -70,11 +70,13 @@ export class CrawlerService implements OnModuleInit {
         'Python script failed to get Game URL. Is ddddocr / python installed correctly?',
         error,
       );
+      this.restartCrawler();
       return;
     }
 
     if (!gameUrl) {
       this.logger.error('Empty URL returned from python.');
+      this.restartCrawler();
       return;
     }
 
@@ -261,7 +263,8 @@ export class CrawlerService implements OnModuleInit {
     }
 
     if (!hasSentInitial) {
-      this.logger.error('Failed to capture initial WebSocket frame!');
+      this.logger.error('Failed to capture initial WebSocket frame! Restarting...');
+      this.restartCrawler();
       return;
     }
 
@@ -339,11 +342,12 @@ export class CrawlerService implements OnModuleInit {
   }
 
   private handleWsPayload(payload: string) {
-    const match = payload.match(/^\d+(\[.*\])$/);
+    const match = payload.match(/^(\d+)(\[.*\])$/);
     if (!match) return;
 
     try {
-      const arr = JSON.parse(match[1]);
+      const prefix = match[1];
+      const arr = JSON.parse(match[2]);
       const dec = arr[0];
       const payloadObj = arr.length > 1 ? arr[1] : arr[0];
 
@@ -354,8 +358,18 @@ export class CrawlerService implements OnModuleInit {
         payloadObj?.status === 401 ||
         payloadObj?.code === 'verify-login-132'
       ) {
+        // 如果是 Socket.io 的 ACK 訊息 (43開頭)，我們可以檢查 AckId
+        if (prefix.startsWith('43')) {
+          const ackId = parseInt(prefix.slice(2), 10);
+          // 如果這個 AckId 太舊 (比我們當前的 AckId 小很多)，代表是前台殘留自己亂送的，我們忽略它
+          if (!isNaN(ackId) && ackId < this.currentAckId - 5) {
+            this.logger.warn(`Ignoring 401 error from old/frontend AckId: ${ackId}. Current internal AckId is ${this.currentAckId}`);
+            return; // 不理他
+          }
+        }
+
         this.logger.error(
-          `Received WebSocket 401 Unauthorized: ${JSON.stringify(dec)}`,
+          `Received WebSocket 401 Unauthorized: ${JSON.stringify(dec)} (prefix: ${prefix})`,
         );
         this.restartCrawler();
         return;
