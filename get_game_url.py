@@ -77,6 +77,8 @@ def get_game_url(session, access_token, game_id=12369, device=1):
     
     if resp.status_code == 302:
         return resp.headers.get("Location")
+    
+    log(f"Fail: Expected 302, got HTTP {resp.status_code}. Response text: {resp.text}")
     return None
 
 if __name__ == "__main__":
