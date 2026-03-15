@@ -38,6 +38,21 @@ export class RoomsController {
     return this.roomsService.getAllRooms(pageNum, pageCountNum);
   }
 
+  @Get('number/:roomNumber')
+  @ApiOperation({ summary: 'Get specific room information by room number' })
+  @ApiResponse({
+    status: 200,
+    description: 'Detailed information about the room.',
+    type: RoomDetailResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'Room not found.' })
+  async getRoomByNumber(
+    @Param('roomNumber', ParseIntPipe) roomNumber: number,
+  ): Promise<any> {
+    const data = await this.roomsService.getRoomByNumber(roomNumber);
+    return data as any;
+  }
+
   @Get(':roomId')
   @ApiOperation({ summary: 'Get specific room information with statistics' })
   @ApiResponse({

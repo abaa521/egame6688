@@ -128,6 +128,18 @@ export class RoomsService {
     };
   }
 
+  async getRoomByNumber(roomNumber: number) {
+    const allRooms = Object.values(this.globalTableCache);
+    const room = allRooms.find((r: any) => Number(r.number) === roomNumber);
+    if (!room || !room.roomId) {
+      return {
+        status: 404,
+        message: 'Room not found in cache or missing roomId',
+      };
+    }
+    return this.getRoomById(room.roomId);
+  }
+
   async getRoomById(roomId: number) {
     const requestTime = Date.now();
 
